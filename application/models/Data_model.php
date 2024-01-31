@@ -13,6 +13,48 @@ $query = $this->db->query($sql, array($transtype,$finyear));
 }
     
 
+
+public function getGstr9cdnr($yr,$cid)
+{
+    $sql="SELECT t.trans_type, round(sum(itm.taxable_amount),2)`txb_amt`,round(sum(itm.igst_amount),2)`igst`,round(sum(itm.sgst_amount),2)`sgst`,round(sum(itm.cgst_amount),2)`cgst`,round(sum(itm.cess_amount),2)`cess` FROM `itemtransaction_tbl` itm,transaction_tbl t WHERE  itm.delflag=0 AND (itm.trans_type='SRTN' or itm.trans_type='PRTN')  AND t.id=itm.trans_link_id and t.gstin<>'' and itm.finyear=? and itm.company_id=? group by t.trans_type";
+    $query = $this->db->query($sql, array($yr,$cid));
+    return $query->result_array();
+    
+}
+
+public function getGstr9hsnsac($yr,$cid)
+{
+$sql="SELECT item_hsnsac,item_unit,sum(item_qty)`item_qty`,sum(taxable_amount)`taxable_amount`,item_gstpc,sum(igst_amount)`igst_amount`,sum(cgst_amount)`cgst_amount`,sum(sgst_amount)`sgst_amount`,sum(cess_amount)`cess_amount` FROM `itemtransaction_tbl` WHERE company_id=? and finyear=?  AND trans_type='SALE' and  delflag=0 GROUP BY item_hsnsac ORDER BY item_hsnsac";
+$query = $this->db->query($sql, array($cid,$yr));
+//$this->output->enable_profiler(TRUE); 
+
+return $query->result_array();
+}
+
+public function getGstr9b2b($yr,$cid)
+{
+//$sql="SELECT l.account_name, itm.trans_id,itm.trans_date,t.gstin,itm.item_gstpc, round(sum(itm.taxable_amount),2)`txb_amt`,round(sum(itm.nett_amount),2)`net_amt`,round(sum(itm.igst_amount),2)`igst`,round(sum(itm.sgst_amount),2)`sgst`,round(sum(itm.cgst_amount),2)`cgst` FROM `itemtransaction_tbl` itm,transaction_tbl t,ledgermaster_tbl l WHERE t.db_account=l.id AND itm.delflag=0 AND itm.trans_type='SALE' AND t.id=itm.trans_link_id and t.gstin<>'' and t.finyear=? and itm.company_id=? group by itm.trans_id,itm.item_gstpc ORDER BY itm.trans_id,t.gstin";
+$sql="SELECT round(sum(itm.taxable_amount),2)`txb_amt`,round(sum(itm.nett_amount),2)`net_amt`,round(sum(itm.igst_amount),2)`igst`,round(sum(itm.sgst_amount),2)`sgst`,round(sum(itm.cgst_amount),2)`cgst`,round(sum(itm.cess_amount),2)`cess` FROM `itemtransaction_tbl` itm,transaction_tbl t,ledgermaster_tbl l WHERE t.db_account=l.id AND itm.delflag=0 AND itm.trans_type='SALE' AND t.id=itm.trans_link_id and t.gstin<>'' and t.finyear=? and itm.company_id=?";
+$query = $this->db->query($sql, array($yr,$cid));
+//$this->output->enable_profiler(TRUE); 
+
+    return $query->result_array();
+}
+
+public function getGstr9b2c($yr,$cid)
+{
+//$sql="SELECT l.account_name, itm.trans_id,itm.trans_date,t.gstin,itm.item_gstpc, round(sum(itm.taxable_amount),2)`txb_amt`,round(sum(itm.nett_amount),2)`net_amt`,round(sum(itm.igst_amount),2)`igst`,round(sum(itm.sgst_amount),2)`sgst`,round(sum(itm.cgst_amount),2)`cgst` FROM `itemtransaction_tbl` itm,transaction_tbl t,ledgermaster_tbl l WHERE t.db_account=l.id AND itm.delflag=0 AND itm.trans_type='SALE' AND t.id=itm.trans_link_id and t.gstin<>'' and t.finyear=? and itm.company_id=? group by itm.trans_id,itm.item_gstpc ORDER BY itm.trans_id,t.gstin";
+$sql="SELECT round(sum(itm.taxable_amount),2)`txb_amt`,round(sum(itm.nett_amount),2)`net_amt`,round(sum(itm.igst_amount),2)`igst`,round(sum(itm.sgst_amount),2)`sgst`,round(sum(itm.cgst_amount),2)`cgst`,round(sum(itm.cess_amount),2)`cess` FROM `itemtransaction_tbl` itm,transaction_tbl t,ledgermaster_tbl l WHERE t.db_account=l.id AND itm.delflag=0 AND itm.trans_type='SALE' AND t.id=itm.trans_link_id and t.gstin='' and t.finyear=? and itm.company_id=?";
+$query = $this->db->query($sql, array($yr,$cid));
+//$this->output->enable_profiler(TRUE); 
+
+    return $query->result_array();
+}
+
+
+
+
+
 }
 
 public function getTransDatabyid($cid=null,$finyear=null,$trans_type=null,$id=null)
