@@ -12,7 +12,7 @@ $query = $this->db->query($sql, array($transtype,$finyear));
 
 }
     
-
+}
 
 public function getGstr9cdnr($yr,$cid)
 {
@@ -52,10 +52,6 @@ $query = $this->db->query($sql, array($yr,$cid));
 }
 
 
-
-
-
-}
 
 public function getTransDatabyid($cid=null,$finyear=null,$trans_type=null,$id=null)
 {
