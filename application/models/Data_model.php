@@ -5,8 +5,47 @@ class Data_model extends CI_Model {
 public function getSalesPurchaseData($transtype=null,$finyear=null)
 {
 	   if(!empty($transtype)){
-	$sql="SELECT t.id, t.trans_id,t.trans_date,t.order_date,t.order_no,t.dc_no,t.dc_date,t.trans_type,t.db_account,t.cr_account,t.statecode,t.gstin,t.inv_type,t.rcm,t.net_amount,t.trans_amount,t.trans_reference,t.trans_narration,t.salebyperson,t.finyear,l.account_name`custname` FROM transaction_tbl t,ledgermaster_tbl l where  t.db_account=l.id and t.trans_type=? AND t.finyear=? and t.delflag=0 GROUP BY t.id order by t.trans_date desc, t.id desc";
-
+//	$sql="SELECT t.id, t.trans_id,t.trans_date,t.order_date,t.order_no,t.dc_no,t.dc_date,t.trans_type,t.db_account,t.cr_account,t.statecode,t.gstin,t.inv_type,t.rcm,sum(it.nett_amount) as `net_amount`,t.trans_amount,t.trans_reference,t.trans_narration,t.salebyperson,t.finyear,l.account_name`custname` FROM transaction_tbl t,ledgermaster_tbl l, itemtransaction_tbl it where  (t.db_account=l.id or t.db_account=0) and t.trans_type=? AND t.finyear=? and t.delflag=0 and it.delflag=0 and t.trans_id=it.trans_id GROUP BY t.id order by t.trans_date desc, t.id desc";
+$sql="SELECT 
+    t.id, 
+    t.trans_id, 
+    t.trans_date, 
+    t.order_date, 
+    t.order_no, 
+    t.dc_no, 
+    t.dc_date, 
+    t.trans_type, 
+    t.db_account, 
+    t.cr_account, 
+    t.statecode, 
+    t.gstin, 
+    t.inv_type, 
+    t.rcm, 
+    SUM(it.nett_amount) AS net_amount, 
+    t.trans_amount, 
+    t.trans_reference, 
+    t.trans_narration, 
+    t.salebyperson, 
+    t.finyear, 
+    l.account_name AS custname
+FROM 
+    transaction_tbl t
+LEFT JOIN 
+    ledgermaster_tbl l 
+    ON t.db_account = l.id
+INNER JOIN 
+    itemtransaction_tbl it 
+    ON t.trans_id = it.trans_id
+WHERE 
+    t.trans_type = ? 
+    AND t.finyear = ? 
+    AND t.delflag = 0 
+    AND it.delflag = 0
+GROUP BY 
+    t.id
+ORDER BY 
+    t.trans_date DESC, 
+    t.id DESC";
 $query = $this->db->query($sql, array($transtype,$finyear));
     return $query->result_array();
 
@@ -404,7 +443,7 @@ return $query->result_array();
 public function getSalesPurchaseDatabyId($id=null,$qry=null)
 {
 	   if(!empty($id)){
-	$sql="SELECT t.id, t.trans_id,t.trans_date,t.order_date,t.order_no,t.dc_no,t.dc_date,t.trans_type,t.db_account,t.cr_account,t.statecode,t.gstin,t.inv_type,t.rcm,t.net_amount,t.trans_amount,t.trans_reference,t.trans_narration,t.salebyperson,t.finyear,l.account_name`custname` FROM transaction_tbl t,ledgermaster_tbl l where  t.db_account=l.id and t.id=? AND t.trans_type=? and t.delflag=0 GROUP BY t.id";
+	$sql="SELECT t.id, t.trans_id,t.trans_date,t.order_date,t.order_no,t.dc_no,t.dc_date,t.trans_type,t.db_account,t.cr_account,t.statecode,t.gstin,t.inv_type,t.rcm,t.net_amount,t.trans_amount,t.trans_reference,t.trans_narration,t.salebyperson,t.finyear,l.account_name`custname` FROM transaction_tbl t,ledgermaster_tbl l where  (t.db_account=l.id or t.db_account=0) and t.id=? AND t.trans_type=? and t.delflag=0 GROUP BY t.id";
 
 
 /*	$sql="SELECT t.id, t.trans_id,t.trans_date,t.order_date,t.order_no,t.dc_no,t.dc_date,t.trans_type,t.db_account,t.cr_account,t.statecode,t.gstin,t.inv_type,t.rcm,t.net_amount,t.trans_amount,t.trans_reference,t.trans_narration,t.salebyperson,t.finyear,l.account_name`custname`,sum(itm.taxable_amount)`txb_amt`,sum(itm.nett_amount)`net_amt` FROM transaction_tbl t,ledgermaster_tbl l,itemtransaction_tbl itm where t.id=itm.trans_link_id and t.db_account=l.id and itm.delflag=0 and t.id=? and t.trans_type=? GROUP BY t.id";
