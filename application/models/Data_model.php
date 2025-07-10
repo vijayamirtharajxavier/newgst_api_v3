@@ -165,6 +165,8 @@ public function getGstr1b2bhsn($fdate,$tdate,$cid,$trans_type)
 {
 $sql="SELECT it.trans_id,it.item_hsnsac,it.item_unit,sum(it.item_qty)`item_qty`,sum(it.taxable_amount)`taxable_amount`,it.item_gstpc,sum(it.igst_amount)`igst_amount`,sum(it.cgst_amount)`cgst_amount`,sum(it.sgst_amount)`sgst_amount`,sum(it.cess_amount)`cess_amount` FROM `itemtransaction_tbl` it, transaction_tbl t WHERE it.company_id=t.company_id and it.trans_date>=? AND it.trans_date<=? AND it.trans_type=? and it.company_id=? AND it.delflag=0 and it.trans_id=t.trans_id and t.gstin<>'' GROUP BY item_hsnsac ORDER BY item_hsnsac";
 $query = $this->db->query($sql, array($fdate,$tdate,$trans_type,$cid));
+//$this->output->enable_profiler(TRUE); 
+
     return $query->result_array();
 }
 
@@ -172,6 +174,8 @@ public function getGstr1b2chsn($fdate,$tdate,$cid,$trans_type)
 {
 $sql="SELECT it.trans_id,it.item_hsnsac,it.item_unit,sum(it.item_qty)`item_qty`,sum(it.taxable_amount)`taxable_amount`,it.item_gstpc,sum(it.igst_amount)`igst_amount`,sum(it.cgst_amount)`cgst_amount`,sum(it.sgst_amount)`sgst_amount`,sum(it.cess_amount)`cess_amount` FROM `itemtransaction_tbl` it, transaction_tbl t WHERE it.company_id=t.company_id and it.trans_date>=? AND it.trans_date<=? AND it.trans_type=? and it.company_id=? AND it.delflag=0 and it.trans_id=t.trans_id and t.gstin='' GROUP BY item_hsnsac ORDER BY item_hsnsac";
 $query = $this->db->query($sql, array($fdate,$tdate,$trans_type,$cid));
+//$this->output->enable_profiler(TRUE); 
+
     return $query->result_array();
 }
 

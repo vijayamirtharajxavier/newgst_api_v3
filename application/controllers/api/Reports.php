@@ -436,21 +436,103 @@ $b2arr[] = array('sply_ty'=>"INTER",'pos'=>"'" . $b2cvalue['pos'],'typ'=>$ec,'tx
 }
 
 
-//HSN List
-    $hsndata=array();
-    $gstr1hsnData=$this->data_model->getGstr1hsn($fdate,$tdate,$cid,$trans_stype);
-    if($gstr1hsnData)
+//B2B - HSN List
+    $hsnb2bata=array();
+    $gstr1b2bhsnData=$this->data_model->getGstr1b2bhsn($fdate,$tdate,$cid,$trans_stype);
+//        $gstr1hsnData=$this->data_model->getGstr1hsn($fdate,$tdate,$cid,$trans_stype);
+
+    if($gstr1b2bhsnData)
+
     {
       $rw=1;
-      foreach ($gstr1hsnData as $key => $hsn) {
+      foreach ($gstr1b2bhsnData as $key => $hsn) {
         # code...
          if(substr($hsn['item_hsnsac'],0,2)=="99")
   {
-        $hsndata["data"][]=array("num"=>$rw,"hsn_sc"=>$hsn['item_hsnsac'],"desc"=>"","uqc"=>"NA","qty"=>intval($hsn['item_qty']),"rt"=>floatval($hsn['item_gstpc']),"txval"=>floatval($hsn['taxable_amount']),"iamt"=>floatval($hsn['igst_amount']),"camt"=>floatval($hsn['cgst_amount']),"samt"=>floatval($hsn['sgst_amount']),"csamt"=>floatval($hsn['cess_amount']));
+        $hsnb2bdata["hsn_b2b"][]=array(
+    "num" => $rw,
+    "hsn_sc" => $hsn['item_hsnsac'],
+    "desc" => "",
+    "uqc" => "NA",
+    "qty" => 0,
+    "rt" => number_format((float) $hsn['item_gstpc'], 2, '.', ''),
+    "txval" => number_format((float) $hsn['taxable_amount'], 2, '.', ''),
+    "iamt" => number_format((float) $hsn['igst_amount'], 2, '.', ''),
+    "camt" => number_format((float) $hsn['cgst_amount'], 2, '.', ''),
+    "samt" => number_format((float) $hsn['sgst_amount'], 2, '.', ''),
+    "csamt" => number_format((float) $hsn['cess_amount'], 2, '.', '')
+);
   }
   else
   {
-    $hsndata["data"][]=array("num"=>$rw,"hsn_sc"=>$hsn['item_hsnsac'],"desc"=>"","uqc"=>$hsn['item_unit'],"qty"=>intval($hsn['item_qty']),"rt"=>floatval($hsn['item_gstpc']),"txval"=>floatval($hsn['taxable_amount']),"iamt"=>floatval($hsn['igst_amount']),"camt"=>floatval($hsn['cgst_amount']),"samt"=>floatval($hsn['sgst_amount']),"csamt"=>floatval($hsn['cess_amount']));
+    $hsnb2bdata["hsn_b2b"][]=array(
+    "num" => $rw,
+    "hsn_sc" => $hsn['item_hsnsac'],
+    "desc" => "",
+    "uqc" => $hsn['item_unit'],
+    "qty" => number_format((float) $hsn['item_qty'], 1, '.', ''),
+    "rt" => number_format((float) $hsn['item_gstpc'], 1, '.', ''),
+    "txval" => number_format((float) $hsn['taxable_amount'], 2, '.', ''),
+    "iamt" => number_format((float) $hsn['igst_amount'], 2, '.', ''),
+    "camt" => number_format((float) $hsn['cgst_amount'], 2, '.', ''),
+    "samt" => number_format((float) $hsn['sgst_amount'], 2, '.', ''),
+    "csamt" => number_format((float) $hsn['cess_amount'], 2, '.', '')
+);
+
+  }      
+
+       
+//        $hsndata["data"]//[]=array("num"=>$rw,"hsn_sc"=>$hsn['item_hsnsac'],"desc"=>"","uqc"=>$hsn['item_unit'],"qty"=>intval($hsn['item_qty']),"rt"=>floatval($hsn['item_gstpc']),"txval"=>floatval($hsn['taxable_amount']),"iamt"=>floatval($hsn['igst_amount']),"camt"=>floatval($hsn['cgst_amount']),"samt"=>floatval($hsn['sgst_amount']),"csamt"=>floatval($hsn['cess_amount']));
+      
+
+        $rw++;
+      }
+    }
+
+//B2C - HSN List
+    $hsnb2cdata=array();
+    $gstr1b2chsnData=$this->data_model->getGstr1b2chsn($fdate,$tdate,$cid,$trans_stype);
+//        $gstr1hsnData=$this->data_model->getGstr1hsn($fdate,$tdate,$cid,$trans_stype);
+
+    if($gstr1b2chsnData)
+
+    {
+      $rw=1;
+      foreach ($gstr1b2chsnData as $key => $hsn) {
+        # code...
+         if(substr($hsn['item_hsnsac'],0,2)=="99")
+  {
+  //      $hsnb2cdata["hsn_b2c"][]=array("num"=>$rw,"hsn_sc"=>$hsn['item_hsnsac'],"desc"=>"","uqc"=>"NA","qty"=>0),"rt"=>floatval($hsn['item_gstpc']),"txval"=>floatval($hsn['taxable_amount']),"iamt"=>floatval($hsn['igst_amount']),"camt"=>floatval($hsn['cgst_amount']),"samt"=>floatval($hsn['sgst_amount']),"csamt"=>floatval($hsn['cess_amount']));
+  $hsnb2cdata["hsn_b2c"][] = array(
+    "num" => $rw,
+    "hsn_sc" => $hsn['item_hsnsac'],
+    "desc" => "",
+    "uqc" => "NA",
+    "qty" => 0,
+    "rt" => number_format((float) $hsn['item_gstpc'], 2, '.', ''),
+    "txval" => number_format((float) $hsn['taxable_amount'], 2, '.', ''),
+    "iamt" => number_format((float) $hsn['igst_amount'], 2, '.', ''),
+    "camt" => number_format((float) $hsn['cgst_amount'], 2, '.', ''),
+    "samt" => number_format((float) $hsn['sgst_amount'], 2, '.', ''),
+    "csamt" => number_format((float) $hsn['cess_amount'], 2, '.', '')
+);
+  }
+  else
+  {
+    $hsnb2cdata["hsn_b2c"][] = array(
+    "num" => $rw,
+    "hsn_sc" => $hsn['item_hsnsac'],
+    "desc" => "",
+    "uqc" => $hsn['item_unit'],
+    "qty" => number_format((float) $hsn['item_qty'], 1, '.', ''),
+    "rt" => number_format((float) $hsn['item_gstpc'], 1, '.', ''),
+    "txval" => number_format((float) $hsn['taxable_amount'], 2, '.', ''),
+    "iamt" => number_format((float) $hsn['igst_amount'], 2, '.', ''),
+    "camt" => number_format((float) $hsn['cgst_amount'], 2, '.', ''),
+    "samt" => number_format((float) $hsn['sgst_amount'], 2, '.', ''),
+    "csamt" => number_format((float) $hsn['cess_amount'], 2, '.', '')
+);
+    //$hsnb2cdata["hsn_b2c"][]=array("num"=>$rw,"hsn_sc"=>$hsn['item_hsnsac'],"desc"=>"","uqc"=>$hsn['item_unit'],"qty"=>intval($hsn['item_qty']),"rt"=>floatval($hsn['item_gstpc']),"txval"=>floatval($hsn['taxable_amount']),"iamt"=>floatval($hsn['igst_amount']),"camt"=>floatval($hsn['cgst_amount']),"samt"=>floatval($hsn['sgst_amount']),"csamt"=>floatval($hsn['cess_amount']));
 
   }      
 
@@ -465,9 +547,11 @@ $b2arr[] = array('sply_ty'=>"INTER",'pos'=>"'" . $b2cvalue['pos'],'typ'=>$ec,'tx
 
 
 
-
 $data['b2cs']=$b2arr;
-$data['hsn'] =$hsndata;
+$data['hsn'] = [
+    'hsn_b2b' => $hsnb2bdata['hsn_b2b'],
+    'hsn_b2c' => $hsnb2cdata['hsn_b2c']
+];
 $fmerge = array_merge($finalmerge,$data);
 $inv = array();
 $itms = array();
@@ -511,7 +595,7 @@ public function getgstr1b2chsndata()
    $type=$data_arr['type'];
 
 $gstr1hsnData=$this->data_model->getGstr1b2chsn($fdate,$tdate,$cid,$type);
-
+//var_dump($gstr1hsnData);
 if($gstr1hsnData)
 {
 
@@ -539,7 +623,7 @@ public function getgstr1b2bhsndata()
    $type=$data_arr['type'];
 
 $gstr1hsnData=$this->data_model->getGstr1b2bhsn($fdate,$tdate,$cid,$type);
-
+//var_dump($gstr1hsnData);
 if($gstr1hsnData)
 {
 
