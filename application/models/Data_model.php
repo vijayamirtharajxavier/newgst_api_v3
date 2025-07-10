@@ -180,6 +180,24 @@ $query = $this->db->query($sql, array($fdate,$tdate,$trans_type,$cid));
 }
 
 
+public function getCurrGT($cid,$finyear,$endDate)
+{
+    $sql = "SELECT SUM(taxable_amount) `curr_turnover_amount` FROM itemtransaction_tbl WHERE trans_date <= ? AND finyear = ?  AND trans_type = 'SALE' AND delflag = 0 AND company_id = ?";
+    $query = $this->db->query($sql, array($endDate,$finyear,$cid));
+    return $query->result_array();
+}
+
+
+
+public function getPyrGT($cid,$prvyear)
+{
+    $sql = "SELECT SUM(taxable_amount) `prvyr_turnover_amount` FROM itemtransaction_tbl WHERE finyear = ?  AND trans_type = 'SALE' AND delflag = 0 AND company_id = ?";
+    $query = $this->db->query($sql, array($prvyear,$cid));
+    return $query->result_array();
+}
+
+
+
 public function getGstr1b2b($fdate,$tdate,$cid)
 {
 $sql="SELECT l.account_name, itm.trans_id,itm.trans_date,t.gstin,itm.item_gstpc, round(sum(itm.taxable_amount),2)`txb_amt`,round(sum(itm.nett_amount),2)`net_amt`,round(sum(itm.igst_amount),2)`igst`,round(sum(itm.sgst_amount),2)`sgst`,round(sum(itm.cgst_amount),2)`cgst` FROM `itemtransaction_tbl` itm,transaction_tbl t,ledgermaster_tbl l WHERE t.db_account=l.id AND itm.delflag=0 AND itm.trans_type='SALE' AND t.id=itm.trans_link_id and t.gstin<>'' and itm.trans_date>=? and itm.trans_date<=? and itm.company_id=? and t.delflag=0 group by itm.trans_id,itm.item_gstpc ORDER BY itm.trans_id,t.gstin";

@@ -11,6 +11,9 @@ $this->load->helper('form');
       $this->load->model('data_model');
 
 }
+
+
+
 public function gettaxesbyid()
 {
 $data=array();
@@ -296,6 +299,39 @@ public function getGstJson()
    $rcm=$data_arr['rcm'];
    $ec=$data_arr['ec'];
    $trans_stype="SALE";
+   $finyear=$data_arr['finyear'];
+  $prv_gross_turnover=0;
+  $current_gross_turnover=0;
+$month = substr($retmon, 0, 2); // "06"
+$year = substr($retmon, 2, 4); // "2025"
+// Create first and last day of the month
+$startDate = date("Y-m-01", strtotime("$year-$month-01"));
+$endDate   = date("Y-m-t", strtotime("$year-$month-01")); // last day of month
+
+//Get Current Year Gross Turnover of return period.
+$getCurrGT=$this->data_model->getCurrGT($cid,$finyear,$endDate);
+if($getCurrGT)
+{
+  foreach ($getCurrGT as $key => $cur_gt) {
+    $current_gross_turnover = $cur_gt['curr_turnover_amount'];
+  }
+}
+
+   $spl_fin_year= explode("-",$finyear);
+   //var_dump($spl_fin_year);
+   $prvyear = (intval($spl_fin_year[0])-1) . "-" . (intval($spl_fin_year[1])-1);
+
+//Previous Year Gross Turnover
+$getPrevGT=$this->data_model->getPyrGT($cid,$prvyear);
+if($getPrevGT)
+{
+  foreach ($getPrevGT as $key => $prv_gt) {
+    $prv_gross_turnover = $prv_gt['prvyr_turnover_amount'];
+  }
+}
+
+
+
    $gstGroupData=$this->data_model->gstGroup($fdate,$tdate,$cid);
    if($gstGroupData)
    {
@@ -406,7 +442,10 @@ $itms = array();
 
 $data['b2b']=$arrmerge1;
 $arrmerge1=array();
-$finalmerge = array_merge(array('gstin'=>$compGstin,'fp'=>"'". $retmon,'version'=>"GST3.0.3",'hash'=>"hash"),$data);
+
+
+
+$finalmerge = array_merge(array('gstin'=>$compGstin,'fp'=>"'". $retmon,'gt'=>(float) $prv_gross_turnover,'cur_gt'=>(float) $current_gross_turnover),$data);
 
 
 //B2C
@@ -455,12 +494,13 @@ $b2arr[] = array('sply_ty'=>"INTER",'pos'=>"'" . $b2cvalue['pos'],'typ'=>$ec,'tx
     "desc" => "",
     "uqc" => "NA",
     "qty" => 0,
-    "rt" => number_format((float) $hsn['item_gstpc'], 2, '.', ''),
-    "txval" => number_format((float) $hsn['taxable_amount'], 2, '.', ''),
-    "iamt" => number_format((float) $hsn['igst_amount'], 2, '.', ''),
-    "camt" => number_format((float) $hsn['cgst_amount'], 2, '.', ''),
-    "samt" => number_format((float) $hsn['sgst_amount'], 2, '.', ''),
-    "csamt" => number_format((float) $hsn['cess_amount'], 2, '.', '')
+ "rt" => (float) sprintf('%.2f', $hsn['item_gstpc']),
+    "txval" => (float) sprintf('%.2f',$hsn['taxable_amount']),
+    "iamt" => (float) sprintf('%.2f', $hsn['igst_amount']),
+    "camt" => (float) sprintf('%.2f', $hsn['cgst_amount']),
+    "samt" => (float) sprintf('%.2f', $hsn['sgst_amount']),
+    "csamt" => (float) sprintf('%.2f', $hsn['cess_amount'])
+
 );
   }
   else
@@ -470,13 +510,13 @@ $b2arr[] = array('sply_ty'=>"INTER",'pos'=>"'" . $b2cvalue['pos'],'typ'=>$ec,'tx
     "hsn_sc" => $hsn['item_hsnsac'],
     "desc" => "",
     "uqc" => $hsn['item_unit'],
-    "qty" => number_format((float) $hsn['item_qty'], 1, '.', ''),
-    "rt" => number_format((float) $hsn['item_gstpc'], 1, '.', ''),
-    "txval" => number_format((float) $hsn['taxable_amount'], 2, '.', ''),
-    "iamt" => number_format((float) $hsn['igst_amount'], 2, '.', ''),
-    "camt" => number_format((float) $hsn['cgst_amount'], 2, '.', ''),
-    "samt" => number_format((float) $hsn['sgst_amount'], 2, '.', ''),
-    "csamt" => number_format((float) $hsn['cess_amount'], 2, '.', '')
+    "qty" => (float) sprintf('%.2f', $hsn['item_qty']),
+   "rt" => (float) sprintf('%.2f', $hsn['item_gstpc']),
+    "txval" => (float) sprintf('%.2f', $hsn['taxable_amount']),
+    "iamt" => (float) sprintf('%.2f', $hsn['igst_amount']),
+    "camt" => (float) sprintf('%.2f', $hsn['cgst_amount']),
+    "samt" => (float) sprintf('%.2f', $hsn['sgst_amount']),
+    "csamt" => (float) sprintf('%.2f', $hsn['cess_amount'])
 );
 
   }      
@@ -509,12 +549,13 @@ $b2arr[] = array('sply_ty'=>"INTER",'pos'=>"'" . $b2cvalue['pos'],'typ'=>$ec,'tx
     "desc" => "",
     "uqc" => "NA",
     "qty" => 0,
-    "rt" => number_format((float) $hsn['item_gstpc'], 2, '.', ''),
-    "txval" => number_format((float) $hsn['taxable_amount'], 2, '.', ''),
-    "iamt" => number_format((float) $hsn['igst_amount'], 2, '.', ''),
-    "camt" => number_format((float) $hsn['cgst_amount'], 2, '.', ''),
-    "samt" => number_format((float) $hsn['sgst_amount'], 2, '.', ''),
-    "csamt" => number_format((float) $hsn['cess_amount'], 2, '.', '')
+   "rt" => (float) sprintf('%.2f', $hsn['item_gstpc']),
+    "txval" => (float) sprintf('%.2f', $hsn['taxable_amount']),
+    "iamt" => (float) sprintf('%.2f', $hsn['igst_amount']),
+    "camt" => (float) sprintf('%.2f', $hsn['cgst_amount']),
+    "samt" => (float) sprintf('%.2f', $hsn['sgst_amount']),
+    "csamt" => (float) sprintf('%.2f', $hsn['cess_amount'])
+
 );
   }
   else
@@ -524,13 +565,14 @@ $b2arr[] = array('sply_ty'=>"INTER",'pos'=>"'" . $b2cvalue['pos'],'typ'=>$ec,'tx
     "hsn_sc" => $hsn['item_hsnsac'],
     "desc" => "",
     "uqc" => $hsn['item_unit'],
-    "qty" => number_format((float) $hsn['item_qty'], 1, '.', ''),
-    "rt" => number_format((float) $hsn['item_gstpc'], 1, '.', ''),
-    "txval" => number_format((float) $hsn['taxable_amount'], 2, '.', ''),
-    "iamt" => number_format((float) $hsn['igst_amount'], 2, '.', ''),
-    "camt" => number_format((float) $hsn['cgst_amount'], 2, '.', ''),
-    "samt" => number_format((float) $hsn['sgst_amount'], 2, '.', ''),
-    "csamt" => number_format((float) $hsn['cess_amount'], 2, '.', '')
+    "qty" => (float) sprintf('%.2f', $hsn['item_qty']),
+   "rt" => (float) sprintf('%.2f', $hsn['item_gstpc']),
+    "txval" => (float) sprintf('%.2f', $hsn['taxable_amount']),
+    "iamt" => (float) sprintf('%.2f', $hsn['igst_amount']),
+    "camt" => (float) sprintf('%.2f', $hsn['cgst_amount']),
+    "samt" => (float) sprintf('%.2f', $hsn['sgst_amount']),
+    "csamt" => (float) sprintf('%.2f', $hsn['cess_amount'])
+
 );
     //$hsnb2cdata["hsn_b2c"][]=array("num"=>$rw,"hsn_sc"=>$hsn['item_hsnsac'],"desc"=>"","uqc"=>$hsn['item_unit'],"qty"=>intval($hsn['item_qty']),"rt"=>floatval($hsn['item_gstpc']),"txval"=>floatval($hsn['taxable_amount']),"iamt"=>floatval($hsn['igst_amount']),"camt"=>floatval($hsn['cgst_amount']),"samt"=>floatval($hsn['sgst_amount']),"csamt"=>floatval($hsn['cess_amount']));
 
