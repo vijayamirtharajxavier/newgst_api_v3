@@ -498,9 +498,8 @@ $output = json_encode($fmerge,JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
 }
 
 
-
-
-public function getgstr1hsndata()
+//b2c-hsn
+public function getgstr1b2chsndata()
 {
   $data=array();
    extract($_POST);
@@ -511,7 +510,35 @@ public function getgstr1hsndata()
    $tdate=$data_arr['tdate'];
    $type=$data_arr['type'];
 
-$gstr1hsnData=$this->data_model->getGstr1hsn($fdate,$tdate,$cid,$type);
+$gstr1hsnData=$this->data_model->getGstr1b2chsn($fdate,$tdate,$cid,$type);
+
+if($gstr1hsnData)
+{
+
+foreach ($gstr1hsnData as $key => $hvalue) {
+     $data["data"][]=array("hsnsac"=>$hvalue['item_hsnsac'],"uqc"=>$hvalue['item_unit'], "total_qty"=>$hvalue['item_qty'],"taxable_value"=>$hvalue['taxable_amount'], "gstpc"=>$hvalue['item_gstpc'],"igst"=>$hvalue['igst_amount'],"cgst"=>$hvalue['cgst_amount'],"sgst"=>$hvalue['sgst_amount'],"cess"=>$hvalue['cess_amount']);
+
+  }  
+}
+
+
+echo json_encode($data);
+}
+
+
+//b2b-hsn
+public function getgstr1b2bhsndata()
+{
+  $data=array();
+   extract($_POST);
+   $data_arr=get_defined_vars();
+   //var_dump($data_arr);
+   $cid=$data_arr['compId'];
+   $fdate=$data_arr['fdate'];
+   $tdate=$data_arr['tdate'];
+   $type=$data_arr['type'];
+
+$gstr1hsnData=$this->data_model->getGstr1b2bhsn($fdate,$tdate,$cid,$type);
 
 if($gstr1hsnData)
 {

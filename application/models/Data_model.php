@@ -6,7 +6,65 @@ public function getSalesPurchaseData($transtype=null,$finyear=null)
 {
 	   if(!empty($transtype)){
 //	$sql="SELECT t.id, t.trans_id,t.trans_date,t.order_date,t.order_no,t.dc_no,t.dc_date,t.trans_type,t.db_account,t.cr_account,t.statecode,t.gstin,t.inv_type,t.rcm,sum(it.nett_amount) as `net_amount`,t.trans_amount,t.trans_reference,t.trans_narration,t.salebyperson,t.finyear,l.account_name`custname` FROM transaction_tbl t,ledgermaster_tbl l, itemtransaction_tbl it where  (t.db_account=l.id or t.db_account=0) and t.trans_type=? AND t.finyear=? and t.delflag=0 and it.delflag=0 and t.trans_id=it.trans_id GROUP BY t.id order by t.trans_date desc, t.id desc";
-$sql="SELECT t.id, t.trans_id, t.trans_date, t.order_date, t.order_no, t.dc_no, t.dc_date, t.trans_type, t.db_account, t.cr_account, t.statecode, t.gstin, t.inv_type, t.rcm, SUM(it.nett_amount) AS net_amount, t.trans_amount, t.trans_reference, t.trans_narration, t.salebyperson, t.finyear, l.account_name AS custname FROM transaction_tbl t LEFT JOIN ledgermaster_tbl l ON t.db_account = l.id INNER JOIN itemtransaction_tbl it ON t.trans_id = it.trans_id WHERE t.trans_type = ? AND t.finyear = ? AND t.delflag = 0 AND it.delflag = 0 GROUP BY t.id ORDER BY t.trans_date DESC, t.id DESC";
+//$sql="SELECT t.id, t.trans_id, t.trans_date, t.order_date, t.order_no, t.dc_no, t.dc_date, t.trans_type, t.db_account, t.cr_account, t.statecode, t.gstin, t.inv_type, t.rcm, SUM(it.nett_amount) AS net_amount, t.trans_amount, t.trans_reference, t.trans_narration, t.salebyperson, t.finyear, l.account_name AS custname FROM transaction_tbl t LEFT JOIN ledgermaster_tbl l ON t.db_account = l.id INNER JOIN itemtransaction_tbl it ON t.trans_id = it.trans_id WHERE t.trans_type = ? AND t.finyear = ? AND t.delflag = 0 AND it.delflag = 0 GROUP BY t.id ORDER BY t.trans_date DESC, t.id DESC";
+$sql="SELECT 
+    t.id, 
+    t.trans_id, 
+    t.trans_date, 
+    t.order_date, 
+    t.order_no, 
+    t.dc_no, 
+    t.dc_date, 
+    t.trans_type, 
+    t.db_account, 
+    t.cr_account, 
+    t.statecode, 
+    t.gstin, 
+    t.inv_type, 
+    t.rcm, 
+    SUM(it.nett_amount) AS net_amount, 
+    t.trans_amount, 
+    t.trans_reference, 
+    t.trans_narration, 
+    t.salebyperson, 
+    t.finyear, 
+    l.account_name AS custname,
+    IFNULL(agg.noi, 0) AS noi, 
+    IFNULL(agg.txb_amt, 0) AS txb_amt,
+    IFNULL(agg.net_amt, 0) AS net_amt
+FROM 
+    transaction_tbl t
+LEFT JOIN 
+    ledgermaster_tbl l 
+    ON t.db_account = l.id
+INNER JOIN 
+    itemtransaction_tbl it 
+    ON t.trans_id = it.trans_id
+LEFT JOIN (
+    SELECT 
+        trans_link_id, 
+        COUNT(trans_link_id) AS noi, 
+        SUM(taxable_amount) AS txb_amt, 
+        SUM(nett_amount) AS net_amt
+    FROM 
+        itemtransaction_tbl
+    WHERE 
+        delflag = 0
+    GROUP BY 
+        trans_link_id
+) agg
+ON t.id = agg.trans_link_id
+WHERE 
+    t.trans_type = ? 
+    AND t.finyear = ? 
+    AND t.delflag = 0 
+    AND it.delflag = 0
+GROUP BY 
+    t.id
+ORDER BY 
+    t.trans_date DESC, 
+    t.id DESC";
+
 $query = $this->db->query($sql, array($transtype,$finyear));
     return $query->result_array();
 
@@ -102,6 +160,20 @@ $query = $this->db->query($sql, array($fdate,$tdate,$trans_type,$cid));
     return $query->result_array();
 }
 
+
+public function getGstr1b2bhsn($fdate,$tdate,$cid,$trans_type)
+{
+$sql="SELECT it.trans_id,it.item_hsnsac,it.item_unit,sum(it.item_qty)`item_qty`,sum(it.taxable_amount)`taxable_amount`,it.item_gstpc,sum(it.igst_amount)`igst_amount`,sum(it.cgst_amount)`cgst_amount`,sum(it.sgst_amount)`sgst_amount`,sum(it.cess_amount)`cess_amount` FROM `itemtransaction_tbl` it, transaction_tbl t WHERE it.company_id=t.company_id and it.trans_date>=? AND it.trans_date<=? AND it.trans_type=? and it.company_id=? AND it.delflag=0 and it.trans_id=t.trans_id and t.gstin<>'' GROUP BY item_hsnsac ORDER BY item_hsnsac";
+$query = $this->db->query($sql, array($fdate,$tdate,$trans_type,$cid));
+    return $query->result_array();
+}
+
+public function getGstr1b2chsn($fdate,$tdate,$cid,$trans_type)
+{
+$sql="SELECT it.trans_id,it.item_hsnsac,it.item_unit,sum(it.item_qty)`item_qty`,sum(it.taxable_amount)`taxable_amount`,it.item_gstpc,sum(it.igst_amount)`igst_amount`,sum(it.cgst_amount)`cgst_amount`,sum(it.sgst_amount)`sgst_amount`,sum(it.cess_amount)`cess_amount` FROM `itemtransaction_tbl` it, transaction_tbl t WHERE it.company_id=t.company_id and it.trans_date>=? AND it.trans_date<=? AND it.trans_type=? and it.company_id=? AND it.delflag=0 and it.trans_id=t.trans_id and t.gstin='' GROUP BY item_hsnsac ORDER BY item_hsnsac";
+$query = $this->db->query($sql, array($fdate,$tdate,$trans_type,$cid));
+    return $query->result_array();
+}
 
 
 public function getGstr1b2b($fdate,$tdate,$cid)

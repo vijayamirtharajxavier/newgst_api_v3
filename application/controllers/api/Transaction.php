@@ -168,11 +168,62 @@ foreach ($sdata as $key => $svalue) {
     # code...
 $trid = $svalue['id'];
 
-$noi=0;
+/*$noi=0;
 $txb_tot=0;
 $net_tot=0;
 
 $sumdata = $this->data_model->getSumSP($trid);
+if($sumdata)
+{
+    foreach ($sumdata as $key => $smvalue) {
+
+        $noi = $smvalue['noi'];
+        $txb_tot=$smvalue['txb_amt'];
+        $net_tot=$smvalue['net_amt'];
+
+        # code...
+    }
+
+
+
+}*/
+
+
+$data[] = array("id"=>$svalue["id"], "noi"=>$svalue["noi"],"txb_tot"=>$svalue["txb_amt"],"net_tot"=>$svalue["net_amt"],"trans_id"=>$svalue['trans_id'],"trans_date"=>$svalue['trans_date'],"order_date"=>$svalue['order_date'],"order_no"=>$svalue['order_no'],"dc_no"=>$svalue['dc_no'],"dc_date"=>$svalue['dc_date'],"trans_type"=>$svalue['trans_type'],"db_account"=>$svalue['db_account'],"cr_account"=>$svalue['cr_account'],"statecode"=>$svalue['statecode'],"gstin"=>$svalue['gstin'],"inv_type"=>$svalue['inv_type'],"rcm"=>$svalue['rcm'],"trans_reference"=>$svalue['trans_reference'],"trans_narration"=>$svalue['trans_narration'],"salebyperson"=>$svalue['salebyperson'],"finyear"=>$svalue['finyear'],"custname"=>$svalue['custname']);
+
+}
+
+//        $this->response($data, REST_Controller::HTTP_OK);
+
+}
+
+echo json_encode($data);
+     
+}
+
+
+
+
+
+public function rpursalreg_get($transtype = null, $finyear=null,$cid=null,$fdate=null,$tdate=null)
+{
+        
+
+
+$sdata = $this->data_model->getRSalesPurchaseReg($transtype,$finyear,$cid,$fdate,$tdate);
+//var_dump($sdata);
+//var_dump($sdata);
+if($sdata)
+{
+foreach ($sdata as $key => $svalue) {
+    # code...
+$trid = $svalue['id'];
+
+$noi=0;
+$txb_tot=0;
+$net_tot=0;
+
+$sumdata = $this->data_model->getRSumSP($trid);
 if($sumdata)
 {
     foreach ($sumdata as $key => $smvalue) {
@@ -200,6 +251,8 @@ $data[] = array("id"=>$svalue["id"], "noi"=>$noi,"txb_tot"=>$txb_tot,"net_tot"=>
 echo json_encode($data);
      
 }
+
+
 
 
 public function pursalreg_get($transtype = null, $finyear=null,$cid=null,$fdate=null,$tdate=null)
